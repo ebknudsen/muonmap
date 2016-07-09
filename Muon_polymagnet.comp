@@ -1,0 +1,104 @@
+/*******************************************************************************
+*
+* McStas, neutron ray-tracing package
+*         Copyright 1997-2002, All rights reserved
+*         Risoe National Laboratory, Roskilde, Denmark
+*         Institut Laue Langevin, Grenoble, France
+*
+* Component: Muon_polymagnet
+*
+* %I
+*
+* Written by: Erik B Knudsen
+* Date: July 2016
+* Version: $Revision$
+* Release: McStas 2.3
+* Origin: DTU Physics
+*
+* A muon implantation sample
+*
+* %D
+* This implements a sample model as would be used for muon implantation experiments.
+* The idea is simple: the muon is implanted using the initial velocity vector and an exp.
+* (Maxwellian) distribution along the velocity vector
+*
+* The "scattering" point, P, is thus chosen - Now a MC decay time is picked, and the muon's spin is allowed
+* precess around the local magnetic field at P. The muons spin vector at the time of decay
+* defines a distribution of positron escape vectors. The particle is given a velocity C, and is allowed to escape.
+*
+*
+* %P
+* Input parameters:
+* xwidth [m] The width of the sample.
+* yheight [m] The height of the sample.
+* zdepth [m] The depth of the sample. (along z).
+* Bx [T] Magnetic field vector along x.
+* By [T] Magnetic field vector along y.
+* Bz [T] Magnetic field vector along z.
+* (none)
+*
+* %E
+*******************************************************************************/
+
+DEFINE COMPONENT Arm
+DEFINITION PARAMETERS ()
+SETTING PARAMETERS (xwidth, yheight, zdepth, Bx, By, Bz)
+OUTPUT PARAMETERS ()
+/* Neutron parameters: (x,y,z,vx,vy,vz,t,sx,sy,sz,p) */ 
+
+DECLARE
+%{
+    const double muon_gyromag_ratio=1;
+    const double muon_decay_rate=1;
+
+%}
+
+INITIALIZE
+%{
+%}
+
+
+TRACE
+%{
+    do {
+
+        if( (hit=box_intersect(&l0,&l1,x,y,z,vx,vy,vz,xwidth,yheight,zdepth))==0) break;
+
+        /*determine the stopping power of the muon sample, along the direction of the incoming particle*/
+        double mu=1;
+
+        /*sample is hit - how far to go?*/
+        double dl=l1-l0;
+
+        if(l0>0) PROP_DT(l0);
+        l1-=l0;
+
+        /*sample scattering point from TEX*/
+        double r=rand01();
+        r = -mu*log(1-r);
+        if (r>l1) break; /*muon passes through - should do via weighting*/
+
+        /*find decay time*/
+        r=rand01();
+        r = -muon_decay_time*log(1-r);
+        
+        /*precess spin by t*gamma around the magnetic field vector at P*/
+        double B=sqrt(scalar_prod(Bx,By,Bz,Bx,By,Bz));
+        rotate(sx,sy,sz, sx,sy,sz, r*muon_gyromag_ratio*B, Bx,By,Bz);
+
+        /*do a decay event*/
+        
+
+    }
+
+
+%}
+
+MCDISPLAY
+%{
+  /* A bit ugly; hard-coded dimensions. */
+  magnify("");
+  box(0,0,0,xwidth,yheight,zdepth);
+%}
+
+END
