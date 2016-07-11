@@ -48,9 +48,9 @@ OUTPUT PARAMETERS ()
 
 DECLARE
 %{
-    const double muon_gyromag_ratio=1;
-    const double muon_decay_rate=1;
-
+    const double muon_gyromag_ratio=135.537e6*2*M_PI; /*rad/T*/
+    const double muon_lifetime=2.19709e-6; /*s*/
+    const double muon_decay_rate
 %}
 
 INITIALIZE
@@ -80,7 +80,7 @@ TRACE
 
         /*find decay time*/
         r=rand01();
-        r = -muon_decay_time*log(1-r);
+        r = -(1.0/muon_lifetime)*log(1-r);
         
         if(scalar_prod(sx,sy,sz,Bx,By,BVz)){
             /*precess spin by t*gamma around the magnetic field vector at P*/
