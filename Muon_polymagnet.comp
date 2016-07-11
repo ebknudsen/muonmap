@@ -82,21 +82,39 @@ TRACE
         r=rand01();
         r = -muon_decay_time*log(1-r);
         
-        /*precess spin by t*gamma around the magnetic field vector at P*/
-        double B=sqrt(scalar_prod(Bx,By,Bz,Bx,By,Bz));
-        rotate(sx,sy,sz, sx,sy,sz, r*muon_gyromag_ratio*B, Bx,By,Bz);
+        if(scalar_prod(sx,sy,sz,Bx,By,BVz)){
+            /*precess spin by t*gamma around the magnetic field vector at P*/
+            double B=sqrt(scalar_prod(Bx,By,Bz,Bx,By,Bz));
+            rotate(sx,sy,sz, sx,sy,sz, r*muon_gyromag_ratio*B, Bx,By,Bz);
+        }
 
-        /*do a decay event*/
-        
+        /*do a decay event given the parity violation*/
+        /*pick an angle (unifromly distributed*/
+        double theta=rand01()*M_PI*2.0-M_PI;
+        /*adjust weight according to cosine function*/
+        p*=(1.0+cos(theta)/3.0)/(4*M_PI*M_PI);
+
+        /*to find an emission direction
+        * 1. find a vector perpendicular to the muon spin
+        * 2. rotate theta around that vector
+        * 3. find another vector perp. to 1st and muon spin.
+        * 4. rotate eta around that.
+        */
+        double eta= rand01()*M_PI;
+
+        double p1x,p1y,p1z,p2x,p2y,p2z;
+        normal_vec(&p1x,&p1y,&p1z,sx,sy,sz);
+        vec_prod(p2x,p2y,p2z,sx,sy,sz,p1x,p1y,p1z);
+        rotate(sx,sy,sz, sx,sy,sz, theta,p1x,p1y,p1z);
+        rotate(sx,sy,sz, sx,sy,sz, eta, p2x,p2y,p2z);
+
+        printf("MUON_MAG: %g %g %g %g\n",sx,sy,sz);
 
     }
-
-
 %}
 
 MCDISPLAY
 %{
-  /* A bit ugly; hard-coded dimensions. */
   magnify("");
   box(0,0,0,xwidth,yheight,zdepth);
 %}
