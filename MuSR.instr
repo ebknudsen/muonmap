@@ -1,0 +1,303 @@
+/*******************************************************************************
+* Instrument: MuSR
+*
+* %I
+* Written by: Erik B Knudsen(erkn@fysik.dtu.dk)>
+* Date: <current date>
+* Origin: DTU Physics
+* Release: McStas 2.4
+* Version: 0.1
+* %INSTRUMENT_SITE: Unknown
+*
+* <instrument short description>
+*
+* %D
+* <instrument description>
+*
+* Example: <parameters=values>
+*
+* %P
+* <parameter1>: [<unit>] <parameter1 description>
+* ...
+*
+* %L
+* <reference/HTML link>
+*
+* %E
+*******************************************************************************/
+DEFINE INSTRUMENT MuSR(BY=1, MM=1, string magnet_file="voronoi_magpts.dat")
+
+DECLARE
+%{
+    double XI=45;
+    double SDD=.35;
+    double ETA[10];
+
+%}
+
+INITIALIZE
+%{
+    int i;
+    for (i=0; i<10; i++){
+        ETA[i]=i*360/10;
+    }
+%}
+
+TRACE
+
+COMPONENT origin = Progress_bar()
+AT (0, 0, 0) RELATIVE ABSOLUTE
+
+COMPONENT back = Arm()
+    AT(0,0,-SDD-0.1) RELATIVE origin
+
+COMPONENT forward = Arm()
+    AT(0,0,SDD+0.1) RELATIVE origin
+
+
+COMPONENT mm= Arm()
+AT (0,0,0) RELATIVE origin
+
+
+COMPONENT mm1 = Muon_magnet(
+  xwidth=0.01, yheight=0.01, zdepth=0.01,
+  Bx=0, By=BY, Bz=0
+)
+WHEN (MM==1) AT(0,0,0) RELATIVE origin
+
+COMPONENT mm2 = Muon_polymagnet(
+  xwidth=0.01, yheight=0.01, zdepth=0.01,
+  field_data=magnet_file 
+)
+WHEN (MM==2) AT(0,0,0) RELATIVE origin
+
+/*COMPONENT fp = PSD_monitor_4PI(restore_neutron=1, radius=0.5,filename="FP")*/
+/*AT(0,0,0) RELATIVE mm*/
+
+COMPONENT BWarm = Arm()
+AT (0, 0, 0) RELATIVE mm
+ROTATED (0, 180, 0) RELATIVE PREVIOUS
+
+
+COMPONENT FW = TOF_monitor(
+    xmin=-0.25, 
+    xmax=0.25, 
+    ymin=-0.45, 
+    ymax=0.45,
+    tmin=0, tmax=10,nt=200,
+    filename="FW", restore_neutron=1)
+AT (0, 0, SDD) RELATIVE mm
+GROUP dets
+
+COMPONENT BW = COPY(FW)(filename="BW")
+AT(0,0,-SDD) RELATIVE mm
+GROUP dets
+
+/*COMPONENT catchall = Arm()*/
+/*AT(0,0,0) RELATIVE mm*/
+/*GROUP dets*/
+/*EXTEND*/
+/*%{*/
+/*    SCATTER;*/
+/*%}*/
+
+/*Set up two rings of detectors using Arms  to reflect the J-PARC arrangement.*/
+
+COMPONENT fw_azim0 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[0]) RELATIVE mm
+COMPONENT fw_elevation0 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim0
+COMPONENT fw_azim1 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[1]) RELATIVE mm
+COMPONENT fw_elevation1 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim1
+COMPONENT fw_azim2 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[2]) RELATIVE mm
+COMPONENT fw_elevation2 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim2
+COMPONENT fw_azim3 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[3]) RELATIVE mm
+COMPONENT fw_elevation3 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim3
+COMPONENT fw_azim4 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[4]) RELATIVE mm
+COMPONENT fw_elevation4 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim4
+COMPONENT fw_azim5 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[5]) RELATIVE mm
+COMPONENT fw_elevation5 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim5
+COMPONENT fw_azim6 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[6]) RELATIVE mm
+COMPONENT fw_elevation6 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim6
+COMPONENT fw_azim7 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[7]) RELATIVE mm
+COMPONENT fw_elevation7 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim7
+COMPONENT fw_azim8 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[8]) RELATIVE mm
+COMPONENT fw_elevation8 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim8
+COMPONENT fw_azim9 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[9]) RELATIVE mm
+COMPONENT fw_elevation9 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim9
+COMPONENT fw_azim10 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,0,ETA[10]) RELATIVE mm
+COMPONENT fw_elevation10 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE fw_azim10
+COMPONENT bw_azim0 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[0]) RELATIVE mm
+COMPONENT bw_elevation0 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim0
+COMPONENT bw_azim1 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[1]) RELATIVE mm
+COMPONENT bw_elevation1 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim1
+COMPONENT bw_azim2 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[2]) RELATIVE mm
+COMPONENT bw_elevation2 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim2
+COMPONENT bw_azim3 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[3]) RELATIVE mm
+COMPONENT bw_elevation3 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim3
+COMPONENT bw_azim4 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[4]) RELATIVE mm
+COMPONENT bw_elevation4 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim4
+COMPONENT bw_azim5 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[5]) RELATIVE mm
+COMPONENT bw_elevation5 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim5
+COMPONENT bw_azim6 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[6]) RELATIVE mm
+COMPONENT bw_elevation6 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim6
+COMPONENT bw_azim7 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[7]) RELATIVE mm
+COMPONENT bw_elevation7 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim7
+COMPONENT bw_azim8 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[8]) RELATIVE mm
+COMPONENT bw_elevation8 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim8
+COMPONENT bw_azim9 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (0,180,ETA[9]) RELATIVE mm
+COMPONENT bw_elevation9 = Arm()
+AT(0,0,0) RELATIVE mm
+ROTATED (-XI,0,0) RELATIVE bw_azim9
+
+/*Here are the actual detectors/monitors FW and BW interspersed. */
+
+//COMPONENT fw_tpsd0 = PSD_monitor_TOF(restore_neutron=1,filename="fw_tpsd0",nx=8,ny=2,tmin=0, tmax=10, nt=200, xwidth=0.16, yheight=0.04)
+//COMPONENT fw_tpsd0 = TOF_monitor(restore_neutron=1,filename="fw_tpsd0", tmin=0, tmax=10, nt=200,xwidth=0.16, yheight=0.04)
+//COMPONENT fw_tpsd0 = PSD_monitor(restore_neutron=1,filename="fw_tpsd0", xwidth=0.16, yheight=0.04)
+//AT (0,0,SDD) RELATIVE fw_elevation0
+//GROUP d2
+/*COMPONENT bw_tpsd0 = COPY(fw_tpsd0)(filename="bw_tpsd0")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation0*/
+/*GROUP d2*/
+/*COMPONENT fw_tpsd1 = COPY(fw_tpsd0)(filename="fw_tpsd1")*/
+/*AT (0,0,SDD) RELATIVE fw_elevation1*/
+/*GROUP d2*/
+/*COMPONENT bw_tpsd1 = COPY(fw_tpsd0)(filename="bw_tpsd1")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation1*/
+/*GROUP d2*/
+/*COMPONENT fw_tpsd2 = COPY(fw_tpsd0)(filename="fw_tpsd2")*/
+/*AT (0,0,SDD) RELATIVE fw_elevation2*/
+/*GROUP d2*/
+/*COMPONENT bw_tpsd2 = COPY(fw_tpsd0)(filename="bw_tpsd2")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation2*/
+/*GROUP d2*/
+/*COMPONENT fw_tpsd3 = COPY(fw_tpsd0)(filename="fw_tpsd3")*/
+/*AT (0,0,SDD) RELATIVE fw_elevation3*/
+/*GROUP d2*/
+/*COMPONENT bw_tpsd3 = COPY(fw_tpsd0)(filename="bw_tpsd3")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation3*/
+/*GROUP d2*/
+/*COMPONENT fw_tpsd4 = COPY(fw_tpsd0)(filename="fw_tpsd4")*/
+/*AT (0,0,SDD) RELATIVE fw_elevation4*/
+/*GROUP d2*/
+/*COMPONENT bw_tpsd4 = COPY(fw_tpsd0)(filename="bw_tpsd4")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation4*/
+/*GROUP d2*/
+/*COMPONENT fw_tpsd5 = COPY(fw_tpsd0)(filename="fw_tpsd5")*/
+/*AT (0,0,SDD) RELATIVE fw_elevation5*/
+/*GROUP d2*/
+/*COMPONENT bw_tpsd5 = COPY(fw_tpsd0)(filename="bw_tpsd5")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation5*/
+/*GROUP d2*/
+/*COMPONENT fw_tpsd6 = COPY(fw_tpsd0)(filename="fw_tpsd6")*/
+/*AT (0,0,SDD) RELATIVE fw_elevation6*/
+/*GROUP d2*/
+/*COMPONENT bw_tpsd6 = COPY(fw_tpsd0)(filename="bw_tpsd6")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation6*/
+/*GROUP d2*/
+/*COMPONENT fw_tpsd7 = COPY(fw_tpsd0)(filename="fw_tpsd7")*/
+/*AT (0,0,SDD) RELATIVE fw_elevation7*/
+/*GROUP d2*/
+/*COMPONENT bw_tpsd7 = COPY(fw_tpsd0)(filename="bw_tpsd7")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation7*/
+/*GROUP d2*/
+/*COMPONENT fw_tpsd8 = COPY(fw_tpsd0)(filename="fw_tpsd8")*/
+/*AT (0,0,SDD) RELATIVE fw_elevation8*/
+/*GROUP d2*/
+/*COMPONENT bw_tpsd8 = COPY(fw_tpsd0)(filename="bw_tpsd8")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation8*/
+/*GROUP d2*/
+/*COMPONENT fw_tpsd9 = COPY(fw_tpsd0)(filename="fw_tpsd9")*/
+/*AT (0,0,SDD) RELATIVE fw_elevation9*/
+/*GROUP d2*/
+/*COMPONENT bw_tpsd9 = COPY(fw_tpsd0)(filename="bw_tpsd9")*/
+/*AT (0,0,SDD) RELATIVE bw_elevation9*/
+/*GROUP d2*/
+/**/
+
+FINALLY
+%{
+%}
+
+END
