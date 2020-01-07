@@ -1,0 +1,85 @@
+/*******************************************************************************
+* Instrument: <instrument name>
+*
+* %I
+* Written by: <your name (email)>
+* Date: <current date>
+* Origin: <your institution>
+* Release: <McStas V.X.X>
+* Version: <instrument version>
+* %INSTRUMENT_SITE: Templates
+*
+* <instrument short description>
+*
+* %D
+* <instrument description>
+*
+* Example: <parameters=values>
+*
+* %P
+* <parameter1>: [<unit>] <parameter1 description>
+* ...
+* 
+* %L
+* <reference/HTML link>
+*
+* %E
+*******************************************************************************/
+DEFINE INSTRUMENT Test_muon(BY=1e-5, BX=0, BZ=0)
+
+DECLARE
+%{
+%}
+
+INITIALIZE
+%{
+%}
+
+TRACE
+
+COMPONENT origin = Progress_bar()
+AT (0, 0, 0) RELATIVE ABSOLUTE
+
+COMPONENT musrc=Muon_source(
+        focus_xw=1e-8, focus_yh=1e-8, dist=1)
+AT(0,0,0) RELATIVE origin
+
+COMPONENT forwards= Monitor_nD(
+        xwidth=0.5, yheight=0.5,filename="forwards",bins=500, options="t limits=[0.0999591,0.100037] bins=100", restore_neutron=1)
+AT(0,0,0.1) RELATIVE PREVIOUS
+
+COMPONENT mu_mag=Muon_polymagnet(
+	xwidth=0.01, yheight=0.01, zdepth=0.01,
+	by=BY, bx=BX, bz=BZ
+)
+AT(0,0,1) RELATIVE origin
+
+COMPONENT fourpi = PSD_monitor_4PI(
+        restore_neutron=1,nx=201,ny=201, radius=0.5, filename="fourpi")
+AT(0,0,0) RELATIVE PREVIOUS
+
+COMPONENT fourpitof = Monitor_nD(
+        radius=0.5, restore_neutron=1, bins=2000,options="t limits=[1.4949999 1.49501]", filename="fourpitof")
+AT(0,0,0) RELATIVE PREVIOUS
+
+COMPONENT backward_a=Arm()
+AT(0,0,0) RELATIVE mu_mag
+ROTATED (0,180,0) RELATIVE mu_mag
+
+/*COMPONENT forward= TOF_monitor(*/
+/*        xwidth=0.5, yheight=0.5,filename="forward", tmin=0.498, tmax=1.802, restore_neutron=1)*/
+
+COMPONENT forward = Monitor_nD(
+        xwidth=0.5, yheight=0.5,filename="forward",restore_neutron=1, bins=500,options="t limits=[1.49499 1.49502]") 
+AT(0,0,0.5) RELATIVE mu_mag
+GROUP det
+
+COMPONENT backward=COPY(forward)(filename="backward")
+AT(0,0,0.5) RELATIVE backward_a 
+GROUP det
+
+FINALLY
+%{
+%}
+
+END
